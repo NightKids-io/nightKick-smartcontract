@@ -15,12 +15,13 @@ async function main() {
   );
 
   const args = [
-    "testing new created token",
-    "TCT",
-    toWei("6000000"),
-    owner.address,
+    // "testing new created token",
+    // "TCT",
+    // toWei("6000000"),
+    // owner.address,
+    "0x1B9890BfD6D56EFbD0beA1F660213eFc688e6819",
   ];
-  const testingContract = await deployContract(owner, "TestingContract", args);
+  const testingContract = await deployContract(owner, "NightKicks", args);
   const tx = testingContract.deployTransaction;
   await logGas(tx);
 
