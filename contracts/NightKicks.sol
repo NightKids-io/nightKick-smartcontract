@@ -33,7 +33,7 @@ contract NightKicks is ERC721A, Ownable {
 
     function buyWithMembershipToken(uint256 _count, uint256[] memory tokenId)
         external
-        payable
+    // payable
     {
         require(
             totalSupply() + _count <= maxSupply,
@@ -45,7 +45,7 @@ contract NightKicks is ERC721A, Ownable {
         );
         require(_count == tokenId.length, "ERROR: wrong token ID or count");
         require(sale, "ERROR: not on sale");
-        require(_count * membershipPrice >= msg.value, "ERROR: wrong price");
+        // require(_count * membershipPrice >= msg.value, "ERROR: wrong price");
         require(
             _count <= MembershipToken.balanceOf(msg.sender),
             "ERROR: not enough MembershipToken"
@@ -57,7 +57,7 @@ contract NightKicks is ERC721A, Ownable {
             );
 
             require(
-                usedMembershipToken[tokenId[i]],
+                !usedMembershipToken[tokenId[i]],
                 "ERROR: this Membership Token is already used"
             );
         }
