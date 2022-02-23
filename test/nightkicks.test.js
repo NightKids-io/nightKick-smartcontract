@@ -1,5 +1,5 @@
 const { expect } = require("chai");
-// const { toWei } = require("../utils/index.js");
+const { toWei } = require("../utils/index.js");
 const { deployContract } = require("../utils/contracts");
 
 describe("NightKicks", async () => {
@@ -26,31 +26,43 @@ describe("NightKicks", async () => {
     it("Public Sale should be locked", async () => {
       let sale = await token.publicSale();
       expect(sale).to.equal(false);
-      console.log(token.address);
     });
 
     it("membership token should be false", async () => {
       let value = await token.usedMembershipToken(0);
       expect(value).to.equal(false);
-      console.log(token.address);
     });
   });
 
   describe("Testing Membership Mint", async () => {
     it("Should mint token", async () => {
       await token.connect(owner).unLockSale();
-      await token.connect(owner).buyWithMembershipToken(2, [0, 1]);
-      console.log(token.address);
+      let price = 2 * toWei("0.06");
+      await token
+        .connect(owner)
+        .buyWithMembershipToken(2, [0, 1], { value: String(price) });
     });
 
-    // it("Should fail minting with same id", async () => {
-    //   expect(
-    //     await token.connect(owner).buyWithMembershipToken(1, [0])
-    //   ).to.be.revertedWith("ERROR: this Membership Token is already used");
-    // });
+    it("check token of owner", async () => {
+      expect(await token.balanceOf(owner.address)).to.equal("2");
+    });
 
-    // it("check if owner has token", async () => {
-    //   expect(await token.totalSupply()).to.equal("1");
-    // });
+    it("Should fail minting with same id", async () => {
+      let price = toWei("0.06");
+      await expect(
+        token
+          .connect(owner)
+          .buyWithMembershipToken(1, [0], { value: String(price) })
+      ).to.be.revertedWith("ERROR: this Membership Token is already used");
+    });
+  });
+
+  describe("Testing public mint", async () => {
+    it("should fail when minting on closed sale", async () => {
+      let price = 3 * toWei("0.08");
+      await expect(
+        token.connect(owner).publicMint(3, { value: String(price) })
+      ).to.be.revertedWith("ERROR: not on sale'");
+    });
   });
 });

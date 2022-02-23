@@ -32,8 +32,8 @@ contract NightKicks is ERC721A, Ownable {
     }
 
     function buyWithMembershipToken(uint256 _count, uint256[] memory tokenId)
-        external
-    // payable
+        public
+        payable
     {
         require(
             totalSupply() + _count <= maxSupply,
@@ -45,7 +45,7 @@ contract NightKicks is ERC721A, Ownable {
         );
         require(_count == tokenId.length, "ERROR: wrong token ID or count");
         require(sale, "ERROR: not on sale");
-        // require(_count * membershipPrice >= msg.value, "ERROR: wrong price");
+        require(msg.value >= _count * membershipPrice, "ERROR: wrong price");
         require(
             _count <= MembershipToken.balanceOf(msg.sender),
             "ERROR: not enough MembershipToken"
@@ -70,6 +70,22 @@ contract NightKicks is ERC721A, Ownable {
             usedMembershipToken[tokenId[j]] = true;
 
             emit NftBought(msg.sender, newItemId, tokenId[j]);
+        }
+    }
+
+    function publicMint(uint256 _count) public payable {
+        require(
+            totalSupply() + _count <= maxSupply,
+            "ERROR: max limit reached"
+        );
+        require(_count <= 10, "ERROR: max 10 mint per transaction");
+        require(publicSale, "ERROR: not on sale");
+        require(msg.value >= _count * publicPrice, "ERROR: wrong price");
+
+        for (uint256 j = 0; j < _count; j++) {
+            uint256 newItemId = totalSupply();
+
+            mintNft(newItemId);
         }
     }
 
