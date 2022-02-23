@@ -37,16 +37,17 @@ describe("NightKicks", async () => {
   describe("Testing Membership Mint", async () => {
     it("Should mint token", async () => {
       await token.connect(owner).unLockSale();
-      let price = 2 * toWei("0.06");
+      let price = 10 * toWei("0.06");
       await token
         .connect(owner)
-        .buyWithMembershipToken(2, [0, 1], { value: String(price) });
+        .buyWithMembershipToken(10, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], {
+          value: String(price),
+        });
     });
-
     it("check token of owner", async () => {
-      expect(await token.balanceOf(owner.address)).to.equal("2");
+      expect(await token.balanceOf(owner.address)).to.equal("10");
+      // console.log(await token.balanceOf(owner.address));
     });
-
     it("Should fail minting with same id", async () => {
       let price = toWei("0.06");
       await expect(
@@ -63,6 +64,15 @@ describe("NightKicks", async () => {
       await expect(
         token.connect(owner).publicMint(3, { value: String(price) })
       ).to.be.revertedWith("ERROR: not on sale'");
+    });
+
+    it("Should mint when sale is unlocked", async () => {
+      let price = 10 * toWei("0.08");
+      await token.connect(owner).unLockPublicSale();
+      await token.connect(owner).publicMint(10, { value: String(price) });
+    });
+    it("check token of owner", async () => {
+      expect(await token.balanceOf(owner.address)).to.equal("20");
     });
   });
 });

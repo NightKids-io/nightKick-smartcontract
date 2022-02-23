@@ -3,10 +3,14 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
 import "./ERC721A.sol";
 
-contract NightKicks is ERC721A, Ownable {
+contract NightKicks is ERC721A, Ownable, ReentrancyGuard {
     IERC721Enumerable MembershipToken;
+
+    using Counters for Counters.Counter;
+    Counters.Counter private _tokenIds;
 
     uint256 public maxSupply;
     bool public sale;
@@ -17,11 +21,7 @@ contract NightKicks is ERC721A, Ownable {
 
     mapping(uint256 => bool) public usedMembershipToken;
 
-    event NftBought(
-        address indexed,
-        uint256 tokenId,
-        uint256 memberShipTokenId
-    );
+    event NftBought(address indexed, uint256 memberShipTokenId);
 
     constructor(address _tokenAddress) ERC721A("NightKicks", "NK", 10, 5555) {
         MembershipToken = IERC721Enumerable(_tokenAddress);
@@ -34,6 +34,7 @@ contract NightKicks is ERC721A, Ownable {
     function buyWithMembershipToken(uint256 _count, uint256[] memory tokenId)
         public
         payable
+        nonReentrant
     {
         require(
             totalSupply() + _count <= maxSupply,
@@ -62,18 +63,14 @@ contract NightKicks is ERC721A, Ownable {
             );
         }
 
+        _safeMint(_msgSender(), _count);
         for (uint256 j = 0; j < _count; j++) {
-            uint256 newItemId = totalSupply();
-
-            mintNft(newItemId);
-
             usedMembershipToken[tokenId[j]] = true;
-
-            emit NftBought(msg.sender, newItemId, tokenId[j]);
+            emit NftBought(_msgSender(), tokenId[j]);
         }
     }
 
-    function publicMint(uint256 _count) public payable {
+    function publicMint(uint256 _count) public payable nonReentrant {
         require(
             totalSupply() + _count <= maxSupply,
             "ERROR: max limit reached"
@@ -82,11 +79,7 @@ contract NightKicks is ERC721A, Ownable {
         require(publicSale, "ERROR: not on sale");
         require(msg.value >= _count * publicPrice, "ERROR: wrong price");
 
-        for (uint256 j = 0; j < _count; j++) {
-            uint256 newItemId = totalSupply();
-
-            mintNft(newItemId);
-        }
+        _safeMint(_msgSender(), _count);
     }
 
     function _baseURI() internal view virtual override returns (string memory) {
@@ -111,9 +104,5 @@ contract NightKicks is ERC721A, Ownable {
 
     function lockPublicSale() public onlyOwner {
         publicSale = false;
-    }
-
-    function mintNft(uint256 _id) internal {
-        _safeMint(msg.sender, _id);
     }
 }
