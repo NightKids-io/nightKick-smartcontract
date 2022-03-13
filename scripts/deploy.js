@@ -19,7 +19,7 @@ async function main() {
     // "TCT",
     // toWei("6000000"),
     // owner.address,
-    "0x1B9890BfD6D56EFbD0beA1F660213eFc688e6819",
+    "0x83b7261DB8c795701C6fc86D1fcd073ece940E10",
   ];
   const testingContract = await deployContract(owner, "NightKicks", args);
   const tx = testingContract.deployTransaction;

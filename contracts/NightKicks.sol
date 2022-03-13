@@ -35,7 +35,7 @@ contract NightKicks is ERC721Enumerable, Ownable, ReentrancyGuard {
     constructor(address _tokenAddress) ERC721("NightKicks", "NK") {
         MembershipToken = IERC721Enumerable(_tokenAddress);
         maxSupply = 5555;
-        _tokenURI = "https://ipfs.io/ipfs/_IPFS_HASH_/";
+        _tokenURI = "https://ipfs.io/ipfs/QmXpXqbiEX52H4vmbxGNA9o71MHpFbHP4JvQobG7KwEUpt/";
         sale = false;
         publicSale = false;
     }
@@ -142,6 +142,10 @@ contract NightKicks is ERC721Enumerable, Ownable, ReentrancyGuard {
 
     function lockPublicSale() public onlyOwner {
         publicSale = false;
+    }
+
+    function changePublicPrice(uint256 _newPrice) public onlyOwner {
+        publicPrice = _newPrice;
     }
 
     function withdrawMoney() external onlyOwner nonReentrant {
